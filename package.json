@@ -1,4 +1,6 @@
-{
+{  
+  "name": "ws-react",
+  "version": "0.1.0",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.2.0",
@@ -28,6 +30,7 @@
       "react-app/jest"
     ]
   },
+  "proxy": "http://localhost:8000",
   "browserslist": {
     "production": [
       ">0.2%",

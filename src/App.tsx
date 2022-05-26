@@ -1,19 +1,18 @@
-import './App.css';
-import React, { useState, useEffect } from 'react';
+import "./App.css";
+import React, { useState, useEffect } from "react";
 import {
   BrowserRouter,
   // Switch,
   Route,
   Routes,
   Link,
-} from 'react-router-dom';
-import cookie from 'cookie';
-import { IUser } from './types';
+} from "react-router-dom";
+import cookie from "cookie";
+import { IUser } from "./types";
 
-import Home from './routes/home';
-import Profile from './routes/profile';
-import Register from './routes/register';
-import Login from './routes/login';
+import Profile from "./routes/profile";
+import Register from "./routes/register";
+import Login from "./routes/login";
 
 function App() {
   const [isAuth, setIsAuth] = useState<boolean>(false); // whether user is logged in or not
@@ -21,58 +20,69 @@ function App() {
 
   const getUser = async () => {
     // checks with backend if user is logged in
-    // if yes, set isAuth to true, and User is set 
-    const response = await fetch('/api/user/me');
+    // if yes, set isAuth to true, and User is set
+    const response = await fetch("http://127.0.0.1:8000/api/user/me", {
+      method: "GET",
+      credentials: "include",
+    });
+    // https://github.com/tiangolo/fastapi/issues/480
+    // try manually setting a cookie
     const data = await response.json();
     console.log("user data: ", data);
-
     if (response.status === 200) {
-      () => setIsAuth(data);
+      // token is legitimate
+      setUser(data);
+      setIsAuth(true);
       return;
+    } else {
+      // token invalid
+      setUser(undefined);
+      setIsAuth(false);
     }
-  }
+    console.log("user:", User); 
+    console.log("isAuth:", isAuth);
+  };
   useEffect(
-    // whenever user log in/out, change the view
-    // make logged in views protected?
+    // this is running twice, because ReactStrictmode renders it twice
     () => {
-    }, [isAuth])
+      getUser();
+      console.log("UseEffect mount - async function");
+    },
+    []
+  );
 
-  const checkCookies = (key: string) => {
-    let parsed = cookie.parse(document.cookie);
-    if (key in parsed) {
-      return parsed.key;
-    }
-    else {
-      return false
-    }
-  }
-  // local storage vs cookies
 
   return (
-    <div className="App">
+    <div className='App'>
       <BrowserRouter>
         <div>
           <nav>
             <ul>
               <li>
-                <Link to="/home">Home</Link>
+                <Link to='/Register'>Register</Link>
               </li>
               <li>
-                <Link to="/Register">Register</Link>
+                <Link to='/'>Profile</Link>
               </li>
               <li>
-                <Link to="/Profile">Profile</Link>
-              </li>
-              <li>
-                <Link to="/Login">Log in</Link>
+                <Link to='/Login'>Log in</Link>
               </li>
             </ul>
           </nav>
           <Routes>
-            <Route path="/home" element={isAuth ? <Home /> : <Profile />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/login" element={<Login />} />
+            <Route
+              path='/'
+              element={
+                isAuth && User ? (
+                  <Profile User={User} setUser={setUser} setIsAuth={setIsAuth} />
+                ) : (
+                  <Login setIsAuth={setIsAuth} />
+                )
+              }
+            />
+            <Route path='/register' element={<Register />} />
+            {/* <Route path='/profile' element={<Profile User={User}/>} /> */}
+            <Route path='/login' element={<Login setIsAuth={setIsAuth} />} />
           </Routes>
 
           {/* A <Switch> looks through its children <Route>s and
@@ -90,7 +100,6 @@ function App() {
         </Switch> */}
         </div>
       </BrowserRouter>
-
     </div>
   );
 }
