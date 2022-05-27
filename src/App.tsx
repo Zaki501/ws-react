@@ -1,5 +1,5 @@
 import "./App.css";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   BrowserRouter,
   // Switch,
@@ -7,7 +7,6 @@ import {
   Routes,
   Link,
 } from "react-router-dom";
-import cookie from "cookie";
 import { IUser } from "./types";
 
 import Profile from "./routes/profile";
@@ -19,18 +18,13 @@ function App() {
   const [User, setUser] = useState<IUser | undefined>(); // current user details
 
   const getUser = async () => {
-    // checks with backend if user is logged in
-    // if yes, set isAuth to true, and User is set
     const response = await fetch("http://127.0.0.1:8000/api/user/me", {
       method: "GET",
       credentials: "include",
     });
-    // https://github.com/tiangolo/fastapi/issues/480
-    // try manually setting a cookie
     const data = await response.json();
     console.log("user data: ", data);
     if (response.status === 200) {
-      // token is legitimate
       setUser(data);
       setIsAuth(true);
       return;
@@ -38,9 +32,8 @@ function App() {
       // token invalid
       setUser(undefined);
       setIsAuth(false);
+      return;
     }
-    console.log("user:", User); 
-    console.log("isAuth:", isAuth);
   };
   useEffect(
     // this is running twice, because ReactStrictmode renders it twice
@@ -50,7 +43,6 @@ function App() {
     },
     []
   );
-
 
   return (
     <div className='App'>
@@ -74,15 +66,18 @@ function App() {
               path='/'
               element={
                 isAuth && User ? (
-                  <Profile User={User} setUser={setUser} setIsAuth={setIsAuth} />
+                  <Profile
+                    User={User}
+                    setUser={setUser}
+                    setIsAuth={setIsAuth}
+                  />
                 ) : (
-                  <Login setIsAuth={setIsAuth} />
+                  <Login getUser={getUser} />
                 )
               }
             />
             <Route path='/register' element={<Register />} />
-            {/* <Route path='/profile' element={<Profile User={User}/>} /> */}
-            <Route path='/login' element={<Login setIsAuth={setIsAuth} />} />
+            <Route path='/login' element={<Login getUser={getUser} />} />
           </Routes>
 
           {/* A <Switch> looks through its children <Route>s and
