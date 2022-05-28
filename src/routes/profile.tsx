@@ -3,16 +3,14 @@ const Profile = (props: { User: any; setUser: any; setIsAuth: any }) => {
   const logout = async () => {
     // fetch logout endpoint
     // if success, setIsAuth to false, clear User
-    const response = await fetch("http://127.0.0.1:8000/api/auth/logout", {
-      method: "GET",
-      // credentials: "include",
+    const response = await fetch("/api/auth/logout", {
+      method: "GET"
     });
     if (response.status === 200) {
       console.log("success, cookie deleted/logged out");
       props.setUser(undefined);
       props.setIsAuth(false);
     }
-    console.log("test click");
     return;
   };
   return (

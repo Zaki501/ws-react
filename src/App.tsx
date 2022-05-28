@@ -18,7 +18,7 @@ function App() {
   const [User, setUser] = useState<IUser | undefined>(); // current user details
 
   const getUser = async () => {
-    const response = await fetch("http://127.0.0.1:8000/api/user/me", {
+    const response = await fetch("/api/user/me", {
       method: "GET",
       credentials: "include",
     });
