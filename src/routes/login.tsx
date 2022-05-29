@@ -31,6 +31,7 @@ const Login = (props: { getUser: any }) => {
       props.getUser();
     } else if (response.status === 401) {
       console.log(response.statusText);
+      console.log(response);
       alert("Incorrect Login Details");
     } else {
       throw new Error("Server can't be reached!");
@@ -39,33 +40,60 @@ const Login = (props: { getUser: any }) => {
 
   const postRegistrationForm = async (e: React.FormEvent) => {
     e.preventDefault();
-    const data = new FormData();
 
-    data.append("username", regUsername);
-    data.append("password", regPassword);
-    data.append("grant_type", "password");
+    if (
+      !check_equal("regUser1", "regUser2", "User names dont match") ||
+      !check_equal("regPass1", "regPass2", "Passwords dont match")
+    ) {
+      console.log("inputs not equal");
+      return;
+    }
 
+    const data = {
+      email: regUsername,
+      password: regPassword,
+    };
     const response = await fetch("/api/auth/register", {
       method: "POST",
-      body: data,
-      // https://stackoverflow.com/a/51726055
-      // to use cookies, have credentials: 'include' in ALL api calls
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
       credentials: "include",
     });
+
     if (
       response.statusText === "OK" &&
       response.status >= 200 &&
       response.status < 300
     ) {
       console.log("account created");
-      props.getUser();
     } else if (response.status === 400) {
-      console.log(response.json());
+      console.log("account already exists!");
       return;
     } else {
       throw new Error("Server can't be reached!");
     }
     return;
+  };
+
+  const check_equal = function (
+    id_1: string,
+    id_2: string,
+    error_message: string
+  ) {
+    if (
+      (document.getElementById(id_1) as HTMLInputElement).value ===
+      (document.getElementById(id_2) as HTMLInputElement).value
+    )
+      return true;
+    else {
+      // // fields dont match - highlight them
+      // (document.getElementById(id_1) as HTMLInputElement).style.color = "red";
+      // (document.getElementById(id_2) as HTMLInputElement).style.color = "red";
+      alert(error_message);
+      return false;
+    }
   };
 
   const LoginForm = () => {
@@ -110,8 +138,9 @@ const Login = (props: { getUser: any }) => {
         <form onSubmit={(e) => postRegistrationForm(e)}>
           <label>
             <input
-              type='text'
+              type='email'
               // name='username'
+              id='regUser1'
               placeholder='Reg email'
               required
               value={regUsername}
@@ -122,8 +151,19 @@ const Login = (props: { getUser: any }) => {
           </label>
           <label>
             <input
+              type='email'
+              // name='username'
+              id='regUser2'
+              placeholder='Confirm Reg email'
+              required
+            />
+          </label>
+          <label>
+            <input
               type='password'
               // name='password'
+              id='regPass1'
+              minLength={8}
               placeholder='Reg password'
               required
               value={regPassword}
@@ -132,6 +172,16 @@ const Login = (props: { getUser: any }) => {
               }}
             />
           </label>
+          <label>
+            <input
+              type='password'
+              // name='username'
+              id='regPass2'
+              placeholder='Confirm Reg password'
+              required
+            />
+          </label>
+
           <button> Send </button>
         </form>
       </div>

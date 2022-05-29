@@ -10,7 +10,6 @@ import {
 import { IUser } from "./types";
 
 import Profile from "./routes/profile";
-import Register from "./routes/register";
 import Login from "./routes/login";
 
 function App() {
@@ -51,10 +50,7 @@ function App() {
           <nav>
             <ul>
               <li>
-                <Link to='/Register'>Register</Link>
-              </li>
-              <li>
-                <Link to='/'>Profile</Link>
+                <Link to='/'>home</Link>
               </li>
               <li>
                 <Link to='/Login'>Log in</Link>
@@ -76,7 +72,6 @@ function App() {
                 )
               }
             />
-            <Route path='/register' element={<Register />} />
             <Route path='/login' element={<Login getUser={getUser} />} />
           </Routes>
 
